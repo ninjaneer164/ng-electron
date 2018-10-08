@@ -2,9 +2,9 @@ var gulp = require('gulp');
 var exec = require('child_process').exec;
 var runElectron = require('gulp-run-electron');
 
-gulp.task('ng', function () {
+gulp.task('ng', function() {
     console.log('building ng...');
-    return exec('ng build', function (error, stdout, stderr) {
+    return exec('ng build --output-hashing=bundles', function(error, stdout, stderr) {
         if (error) {
             console.error(`exec error: ${error}`);
             return;
@@ -13,12 +13,23 @@ gulp.task('ng', function () {
         console.log(`stderr: ${stderr}`);
     });
 });
-gulp.task('electron', function () {
+gulp.task('pre-electron', function() {
+    var src = 'src/electron';
+    return gulp.src([
+            `${src}/main.js`,
+            `${src}//package.json`,
+            `${src}//renderer.js`
+        ])
+        .pipe(gulp.dest('dist'));
+});
+gulp.task('electron', function() {
     console.log('launching electron...');
-    gulp.src('dist')
-        .pipe(runElectron([], { cwd: 'dist' }));
+    return gulp.src('dist')
+        .pipe(runElectron([], {
+            cwd: 'dist'
+        }));
 });
 
-gulp.task('default', gulp.series(['ng', 'electron']));
+gulp.task('default', gulp.series(['ng', 'pre-electron', 'electron']));
 
-gulp.watch('**/*.ts', gulp.series(['ng', runElectron.rerun]));
+gulp.watch('**/*.ts', gulp.series(['ng', 'pre-electron', runElectron.rerun]));
