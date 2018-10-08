@@ -8,7 +8,14 @@ import { Component } from '@angular/core';
 export class AppComponent {
     title = 'app';
 
+    private get _ipc(): any {
+        return electron.ipcRenderer;
+    }
+
     constructor() {
-        electron.ipcRenderer.send('message', 'Hello World');
+        this._ipc.on('message', (event, data) => {
+            console.log(data);
+        });
+        this._ipc.send('initComplete');
     }
 }

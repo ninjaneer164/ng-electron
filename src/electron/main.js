@@ -56,6 +56,15 @@ app.on('activate', function() {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
 
-ipcMain.on('message', (event, data) => {
-    console.log(data);
+let ipcClient = null;
+
+ipcMain.on('initComplete', (event, data) => {
+    console.log('initComplete');
+
+    ipcClient = event.sender;
+
+    setTimeout(() => {
+        ipcClient.send('message', 'Hello World');
+    }, 1000);
+
 });
