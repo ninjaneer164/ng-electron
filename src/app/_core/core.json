@@ -1,0 +1,30 @@
+{
+    "enums": [
+        {
+            "name": "EventType",
+            "names": [
+                "INIT_COMPLETE",
+                "MESSAGE"
+            ],
+            "values": [
+                "'initComplete'",
+                "'message'"
+            ]
+        }
+    ],
+    "interfaces": [
+        {
+            "name": "Event",
+            "properties": [
+                {
+                    "name": "type",
+                    "type": "EventType"
+                },
+                {
+                    "name": "data",
+                    "optional": true
+                }
+            ]
+        }
+    ]
+}

@@ -37,3 +37,5 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+src/app/_core/core.ts
+src/app/_core/index.ts

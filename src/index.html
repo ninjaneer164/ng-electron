@@ -13,9 +13,11 @@
 <body>
     <app-root></app-root>
     <script>
-        require('./renderer.js')
+        try {
+            require('./renderer.js')
 
-        var electron = require('electron');
+            var electron = require('electron');
+        } catch (e) {}
 
     </script>
 </body>

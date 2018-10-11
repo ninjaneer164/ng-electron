@@ -20,7 +20,7 @@ function createWindow() {
     mainWindow.loadFile('index.html');
 
     // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
 
     // Emitted when the window is closed.
     mainWindow.on('closed', function() {
@@ -63,8 +63,10 @@ ipcMain.on('initComplete', (event, data) => {
 
     ipcClient = event.sender;
 
-    setTimeout(() => {
-        ipcClient.send('message', 'Hello World');
+    setInterval(() => {
+        ipcClient.send('message', {
+            type: 'message',
+            data: `Hello World ${new Date().getTime()}`
+        });
     }, 1000);
-
 });
