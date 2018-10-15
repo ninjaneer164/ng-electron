@@ -1,58 +1,51 @@
-var cg = require('code-gen-ts').CodeGen;
-var exec = require('child_process').exec;
-var fs = require('fs');
-var gulp = require('gulp');
-var runElectron = require('gulp-run-electron');
+const gulp = require('gulp');
+const { series, watch } = require('gulp');
+const cg = require('code-gen-ts').CodeGen;
+const fs = require('fs');
+const runElectron = require('gulp-run-electron');
 
-var corePath = './src/app/_core';
-var coreIndex = `${corePath}/index.ts`;
-var coreJson = `${corePath}/core.json`;
-var coreTs = `${corePath}/core.ts`;
+const corePath = './src/app/_core';
+const coreIndex = `${corePath}/index.ts`;
+const coreJson = `${corePath}/core.json`;
+const coreTs = `${corePath}/core.ts`;
 
-gulp.task('core', function(callback) {
-    var json = JSON.parse(fs.readFileSync(coreJson));
-    var z = cg(json).generate();
-    fs.writeFile(coreTs, `${z.output}\r\n`, callback);
-    fs.writeFile(coreIndex, 'export * from \'./core\';\r\n', callback);
-});
+const dist = './dist';
 
-gulp.task('ng', function() {
-    console.log('building ng...');
-    return exec('ng build --output-hashing=bundles', function(error, stdout, stderr) {
-        if (error) {
-            console.error(`exec error: ${error}`);
-            return;
-        }
-        console.log(`stdout: ${stdout}`);
-        console.log(`stderr: ${stderr}`);
-    });
-});
+function core(cb) {
+    const json = JSON.parse(fs.readFileSync(coreJson));
+    const z = cg(json).generate();
+    fs.writeFile(coreTs, `${z.output}\r\n`, cb);
+    fs.writeFile(coreIndex, 'export * from \'./core\';\r\n', cb);
+}
 
-gulp.task('pre-electron', function() {
-    var src = 'src/electron';
-    return gulp.src([
+function _electron(cb) {
+    const src = 'src/electron';
+    gulp.src([
         `${src}/main.js`,
         `${src}/package.json`,
         `${src}/renderer.js`
     ])
         .pipe(gulp.dest('dist'));
-});
+    cb();
+}
 
-gulp.task('electron', function() {
-    console.log('launching electron...');
-    return gulp.src('dist')
+function __electron(cb) {
+    gulp.src('dist')
         .pipe(runElectron([], {
             cwd: 'dist'
         }));
-});
+    cb();
+}
 
-gulp.task('browser', function() {
-    gulp.series(['core']);
-});
+function _watch(cb) {
+    watch(`${dist}/*`, function(cb_) {
+        try {
+            runElectron.rerun();
+        } catch (e) { }
+        cb_();
+    });
+    cb();
+}
 
-gulp.task('default', function() {
-    gulp.series(['core', 'ng', 'pre-electron', 'electron']);
-    gulp.watch('**/*.ts', gulp.series(['ng', 'pre-electron', runElectron.rerun]));
-});
-
-gulp.watch(coreJson, gulp.series(['core']));
+exports.default = series(core, series(_electron, __electron, _watch));
+exports.build_prod = _electron;

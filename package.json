@@ -5,9 +5,12 @@
     "scripts": {
         "clean": "rimraf dist node_modules",
         "ng": "ng",
-        "start": "ng serve",
-        "start:electron": "electron ./dist",
+        "start": "rimraf ./dist && concurrently \"npm run build:dev\" \"npm run start:electron\"",
+        "start:client": "ng serve",
+        "start:electron": "wait-on ./dist/index.html && gulp",
         "build": "ng build",
+        "build:dev": "ng build --output-path ./dist --output-hashing=bundles --watch true",
+        "build:prod": "ng build --output-path ./dist --output-hashing=bundles --prod && gulp build_prod",
         "test": "ng test",
         "lint": "ng lint",
         "e2e": "ng e2e"
@@ -39,7 +42,7 @@
         "codelyzer": "~4.2.1",
         "concurrently": "^4.0.1",
         "electron": "^3.0.0",
-        "gulp": "github:gulpjs/gulp#4.0",
+        "gulp": "^4.0.0",
         "gulp-run-electron": "^3.0.2",
         "jasmine-core": "~2.99.1",
         "jasmine-spec-reporter": "~4.2.1",
@@ -52,6 +55,7 @@
         "rimraf": "^2.6.2",
         "ts-node": "~5.0.1",
         "tslint": "~5.9.1",
-        "typescript": "~2.7.2"
+        "typescript": "~2.7.2",
+        "wait-on": "^3.1.0"
     }
 }
