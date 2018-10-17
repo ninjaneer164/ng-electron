@@ -4,12 +4,13 @@ const cg = require('code-gen-ts').CodeGen;
 const fs = require('fs');
 const runElectron = require('gulp-run-electron');
 
-const corePath = './src/app/_core';
+const src = 'src';
+const dst = 'dist';
+
+const corePath = `${src}/app/_core`;
 const coreIndex = `${corePath}/index.ts`;
 const coreJson = `${corePath}/core.json`;
 const coreTs = `${corePath}/core.ts`;
-
-const dist = './dist';
 
 function core(cb) {
     const json = JSON.parse(fs.readFileSync(coreJson));
@@ -19,26 +20,27 @@ function core(cb) {
 }
 
 function _electron(cb) {
-    const src = 'src/electron';
-    gulp.src([
-        `${src}/main.js`,
-        `${src}/package.json`,
-        `${src}/renderer.js`
-    ])
-        .pipe(gulp.dest('dist'));
+    gulp
+        .src([
+            `${src}/electron/main.js`,
+            `${src}/electron/package.json`,
+            `${src}/electron/renderer.js`
+        ])
+        .pipe(gulp.dest(dst));
     cb();
 }
 
 function __electron(cb) {
-    gulp.src('dist')
+    gulp
+        .src(dst)
         .pipe(runElectron([], {
-            cwd: 'dist'
+            cwd: dst
         }));
     cb();
 }
 
 function _watch(cb) {
-    watch(`${dist}/*`, function(cb_) {
+    watch(`${dst}/*`, function(cb_) {
         try {
             runElectron.rerun();
         } catch (e) { }
@@ -47,5 +49,5 @@ function _watch(cb) {
     cb();
 }
 
-exports.default = series(core, series(_electron, __electron, _watch));
+exports.default = series(core, _electron, __electron, _watch);
 exports.build_prod = _electron;
