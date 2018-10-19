@@ -49,5 +49,7 @@ function _watch(cb) {
     cb();
 }
 
-exports.default = series(core, _electron, __electron, _watch);
 exports.build_prod = _electron;
+exports.core = core;
+
+exports.default = series(core, _electron, __electron, _watch);
